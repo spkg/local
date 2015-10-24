@@ -63,10 +63,10 @@ func TestDays(t *testing.T) {
 }
 
 func CheckLocalDate(t *testing.T, date Date, year, month, day int) {
-
-	assert.Equal(t, year, date.Year())
-	assert.Equal(t, month, int(date.Month()))
-	assert.Equal(t, day, date.Day())
+	assert := assert.New(t)
+	assert.Equal(year, date.Year())
+	assert.Equal(month, int(date.Month()))
+	assert.Equal(day, date.Day())
 
 	// Calculate expected text representation
 	var text string
@@ -77,7 +77,7 @@ func CheckLocalDate(t *testing.T, date Date, year, month, day int) {
 		text = fmt.Sprintf("%04d-%02d-%02d", year, month, day)
 	}
 
-	assert.Equal(t, text, date.String())
+	assert.Equal(text, date.String())
 
 	if date2, err := ParseDate(text); err != nil || !date.Equal(date2) {
 		if err != nil {
@@ -112,7 +112,7 @@ func CheckLocalDate(t *testing.T, date Date, year, month, day int) {
 	if err != nil {
 		t.Errorf("MarshalJSON: %s: unexpected error: %v", text, err)
 	} else {
-		assert.Equal(t, `"`+text+`"`, string(data))
+		assert.Equal(`"`+text+`"`, string(data))
 		var date2 Date
 		err = date2.UnmarshalJSON(data)
 		if err != nil {
@@ -129,7 +129,7 @@ func CheckLocalDate(t *testing.T, date Date, year, month, day int) {
 	if err != nil {
 		t.Errorf("MarshalText: %s: unexpected error: %v", text, err)
 	} else {
-		assert.Equal(t, text, string(data))
+		assert.Equal(text, string(data))
 		var date2 Date
 		err = date2.UnmarshalText(data)
 		if err != nil {
@@ -139,6 +139,19 @@ func CheckLocalDate(t *testing.T, date Date, year, month, day int) {
 				t.Errorf("UnmarshalText: expected %s, actual %s", date.String(), date2.String())
 			}
 		}
+	}
+
+	// marshal and unmarshal binary
+	data, err = date.MarshalBinary()
+	if err != nil {
+		t.Errorf("MarshalBinary: %s: unexpected error: %v", text, err)
+	} else {
+		// binary should be the same as the equivalent time binary
+		tdata, _ := date.t.MarshalBinary()
+		assert.Equal(tdata, data)
+		var date2 Date
+		err = date2.UnmarshalBinary(data)
+		assert.NoError(err, date.String())
 	}
 }
 
@@ -254,5 +267,43 @@ func TestMarshalXML(t *testing.T) {
 		assert.Equal("TestCase", st.XMLName.Local)
 		st.XMLName.Local = ""
 		assert.Equal(tc.st, st)
+	}
+}
+
+func TestAfter(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Date1, Date2 Date
+	}{
+		{DateFor(1999, 9, 30), DateFor(1999, 10, 1)},
+		{DateFor(0, 9, 30), DateFor(0, 10, 1)},
+	}
+
+	for _, tc := range testCases {
+		assert.True(tc.Date1.Before(tc.Date2))
+		assert.True(tc.Date2.After(tc.Date1))
+		assert.False(tc.Date2.Before(tc.Date1))
+		assert.False(tc.Date1.After(tc.Date2))
+	}
+}
+
+func TestWeekday(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Date    Date
+		Weekday time.Weekday
+	}{
+		{DateFor(1999, 9, 30), time.Thursday},
+		{DateFor(1997, 1, 30), time.Thursday},
+		{DateFor(1994, 11, 14), time.Monday},
+		{DateFor(1992, 12, 16), time.Wednesday},
+		{DateFor(2033, 1, 4), time.Tuesday},
+		{DateFor(2033, 4, 8), time.Friday},
+		{DateFor(2033, 4, 9), time.Saturday},
+		{DateFor(2042, 7, 6), time.Sunday},
+	}
+
+	for _, tc := range testCases {
+		assert.Equal(tc.Weekday, tc.Date.Weekday(), tc.Date.String())
 	}
 }
