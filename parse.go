@@ -92,14 +92,14 @@ func DateParseLayout(layout, value string) (Date, error) {
 	}
 }
 
-// ParseDate attempts to parse a string into a local date. Leading
+// DateParse attempts to parse a string into a local date. Leading
 // and trailing space and quotation marks are ignored. The following
 // date formates are recognised: yyyy-mm-dd, yyyymmdd, yyyy.mm.dd,
 // yyyy/mm/dd, yyyy-ddd, yyyyddd.
 //
-// ParseDate is used to parse dates where no layout is provided, for example
+// DateParse is used to parse dates where no layout is provided, for example
 // when marshaling and unmarshaling JSON and XML.
-func ParseDate(s string) (Date, error) {
+func DateParse(s string) (Date, error) {
 	s = strings.Trim(s, " \t\"'")
 	for _, regexp := range parseRegexp.calendarDates {
 		match := regexp.FindStringSubmatch(s)
@@ -128,16 +128,6 @@ func ParseDate(s string) (Date, error) {
 	return Date{}, errInvalidDateFormat
 }
 
-// MustParseDate is similar to ParseDate, but instead of returning an error it will
-// panic if s is not in one of the expected formats.
-func MustParseDate(s string) Date {
-	d, err := ParseDate(s)
-	if err != nil {
-		panic(err.Error())
-	}
-	return d
-}
-
 // DateTimeParseLayout parses a formatted string and returns the date value it represents.
 // The layout is based on the standard library time package and for local date-times the reference is
 //  Mon Jan 2 2006 15:04:05
@@ -150,12 +140,12 @@ func DateTimeParseLayout(layout, value string) (DateTime, error) {
 	}
 }
 
-// ParseDateTime attempts to parse a string into a local date-time. Leading
+// DateTimeParse attempts to parse a string into a local date-time. Leading
 // and trailing space and quotation marks are ignored. The following
 // date formates are recognised: yyyy-mm-dd, yyyymmdd, yyyy.mm.dd,
 // yyyy/mm/dd, yyyy-ddd, yyyyddd. The following time formats are recognised:
 // HH:MM:SS, HH:MM, HHMMSS, HHMM.
-func ParseDateTime(s string) (DateTime, error) {
+func DateTimeParse(s string) (DateTime, error) {
 	s = strings.Trim(s, " \t\"'")
 	for _, regexp := range parseRegexp.calendarDateTimes {
 		match := regexp.FindStringSubmatch(s)
@@ -206,14 +196,4 @@ func ParseDateTime(s string) (DateTime, error) {
 	}
 
 	return DateTime{}, errInvalidDateTimeFormat
-}
-
-// MustParseDate is similar to ParseDate, but instead of returning an error it will
-// panic if s is not in one of the expected formats.
-func MustParseDateTime(s string) DateTime {
-	dt, err := ParseDateTime(s)
-	if err != nil {
-		panic(err.Error())
-	}
-	return dt
 }

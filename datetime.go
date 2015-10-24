@@ -211,7 +211,7 @@ func (d DateTime) MarshalJSON() ([]byte, error) {
 // format (calendar or ordinal).
 func (d *DateTime) UnmarshalJSON(data []byte) (err error) {
 	s := string(data)
-	*d, err = ParseDateTime(s)
+	*d, err = DateTimeParse(s)
 	return
 }
 
@@ -225,7 +225,7 @@ func (d DateTime) MarshalText() ([]byte, error) {
 // The date is expected to an ISO 8601 format (calendar or ordinal).
 func (d *DateTime) UnmarshalText(data []byte) (err error) {
 	s := string(data)
-	*d, err = ParseDateTime(s)
+	*d, err = DateTimeParse(s)
 	return
 }
 
@@ -241,7 +241,7 @@ func (d *DateTime) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) er
 		return err
 	}
 
-	if ld, err := ParseDateTime(s); err != nil {
+	if ld, err := DateTimeParse(s); err != nil {
 		return err
 	} else {
 		*d = ld
@@ -257,7 +257,7 @@ func (d *DateTime) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 }
 
 func (d *DateTime) UnmarshalXMLAttr(attr xml.Attr) error {
-	if ld, err := ParseDateTime(attr.Value); err != nil {
+	if ld, err := DateTimeParse(attr.Value); err != nil {
 		return err
 	} else {
 		*d = ld

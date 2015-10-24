@@ -94,7 +94,7 @@ func CheckLocalDateTime(t *testing.T, datetime DateTime, year, month, day, hour,
 
 	assert.Equal(text, datetime.String())
 
-	datetime2, err := ParseDateTime(text)
+	datetime2, err := DateTimeParse(text)
 	assert.NoError(err)
 	assert.True(datetime.Equal(datetime2))
 
@@ -287,7 +287,7 @@ func TestParseDateDateTime(t *testing.T) {
 	for _, tc := range testCases {
 		for _, suffix := range []string{""} { //, "T00:00:00Z", "T00:00:00", "T00:00:00+10:000", "T000000+0900"} {
 			text := tc.Text + suffix
-			ld, err := ParseDateTime(text)
+			ld, err := DateTimeParse(text)
 			if tc.Valid {
 				assert.NoError(err, text)
 				year, month, day, hour, minute, second := ld.DateTime()
@@ -320,10 +320,10 @@ func TestDateTimeMarshalXML(t *testing.T) {
 	}{
 		{
 			st: testStruct{
-				Element:        MustParseDateTime("2021-01-02T01:02:03"),
-				AnotherElement: MustParseDateTime("2021-01-03T04:05:06"),
-				Attribute1:     MustParseDateTime("2021-01-04T07:08:09"),
-				Attribute2:     MustParseDateTime("2021-01-05T10:11:12"),
+				Element:        mustParseDateTime("2021-01-02T01:02:03"),
+				AnotherElement: mustParseDateTime("2021-01-03T04:05:06"),
+				Attribute1:     mustParseDateTime("2021-01-04T07:08:09"),
+				Attribute2:     mustParseDateTime("2021-01-05T10:11:12"),
 			},
 			xml: `<TestCase Attribute1="2021-01-04T07:08:09" attribute-2="2021-01-05T10:11:12">` +
 				`<Element>2021-01-02T01:02:03</Element><another>2021-01-03T04:05:06</another></TestCase>`,
@@ -380,4 +380,12 @@ func TestDateTimeWeekday(t *testing.T) {
 	for _, tc := range testCases {
 		assert.Equal(tc.Weekday, tc.DateTime.Weekday(), tc.DateTime.String())
 	}
+}
+
+func mustParseDateTime(s string) DateTime {
+	dt, err := DateTimeParse(s)
+	if err != nil {
+		panic(err.Error())
+	}
+	return dt
 }

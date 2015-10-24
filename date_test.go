@@ -79,11 +79,11 @@ func CheckLocalDate(t *testing.T, date Date, year, month, day int) {
 
 	assert.Equal(text, date.String())
 
-	if date2, err := ParseDate(text); err != nil || !date.Equal(date2) {
+	if date2, err := DateParse(text); err != nil || !date.Equal(date2) {
 		if err != nil {
-			t.Errorf("ParseDate: %s: unexpected error: %v", text, err)
+			t.Errorf("DateParse: %s: unexpected error: %v", text, err)
 		} else {
-			t.Errorf("ParseDate: expected=%v, actual=%v", date, date2)
+			t.Errorf("DateParse: expected=%v, actual=%v", date, date2)
 		}
 	}
 
@@ -218,7 +218,7 @@ func TestParseDate(t *testing.T) {
 	for _, tc := range testCases {
 		for _, suffix := range []string{"", "T00:00:00Z", "T00:00:00", "T00:00:00+10:000", "T000000+0900"} {
 			text := tc.Text + suffix
-			ld, err := ParseDate(text)
+			ld, err := DateParse(text)
 			if tc.Valid {
 				assert.NoError(err, text)
 				assert.Equal(tc.Day, ld.Day())
@@ -247,10 +247,10 @@ func TestMarshalXML(t *testing.T) {
 	}{
 		{
 			st: testStruct{
-				Element:        MustParseDate("2021-01-02"),
-				AnotherElement: MustParseDate("2021-01-03"),
-				Attribute1:     MustParseDate("2021-01-04"),
-				Attribute2:     MustParseDate("2021-01-05"),
+				Element:        mustParseDate("2021-01-02"),
+				AnotherElement: mustParseDate("2021-01-03"),
+				Attribute1:     mustParseDate("2021-01-04"),
+				Attribute2:     mustParseDate("2021-01-05"),
 			},
 			xml: `<TestCase Attribute1="2021-01-04" attribute-2="2021-01-05"><Element>2021-01-02</Element><another>2021-01-03</another></TestCase>`,
 		},
@@ -270,7 +270,7 @@ func TestMarshalXML(t *testing.T) {
 	}
 }
 
-func TestAfter(t *testing.T) {
+func TestDateAfter(t *testing.T) {
 	assert := assert.New(t)
 	testCases := []struct {
 		Date1, Date2 Date
@@ -287,7 +287,7 @@ func TestAfter(t *testing.T) {
 	}
 }
 
-func TestWeekday(t *testing.T) {
+func TestDateWeekday(t *testing.T) {
 	assert := assert.New(t)
 	testCases := []struct {
 		Date    Date
@@ -306,4 +306,12 @@ func TestWeekday(t *testing.T) {
 	for _, tc := range testCases {
 		assert.Equal(tc.Weekday, tc.Date.Weekday(), tc.Date.String())
 	}
+}
+
+func mustParseDate(s string) Date {
+	d, err := DateParse(s)
+	if err != nil {
+		panic(err.Error())
+	}
+	return d
 }
