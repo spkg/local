@@ -80,10 +80,25 @@ func init() {
 	}
 }
 
+// DateParseLayout parses a formatted string and returns the date value it represents.
+// The layout is based on the standard library time package and for local dates the reference is
+//  Mon Jan 2 2006
+// If the layout contains time or timezone fields, they are parsed and discarded.
+func DateParseLayout(layout, value string) (Date, error) {
+	if t, err := time.Parse(layout, value); err != nil {
+		return Date{}, err
+	} else {
+		return DateFromTime(t), nil
+	}
+}
+
 // ParseDate attempts to parse a string into a local date. Leading
 // and trailing space and quotation marks are ignored. The following
 // date formates are recognised: yyyy-mm-dd, yyyymmdd, yyyy.mm.dd,
 // yyyy/mm/dd, yyyy-ddd, yyyyddd.
+//
+// ParseDate is used to parse dates where no layout is provided, for example
+// when marshaling and unmarshaling JSON and XML.
 func ParseDate(s string) (Date, error) {
 	s = strings.Trim(s, " \t\"'")
 	for _, regexp := range parseRegexp.calendarDates {
@@ -121,6 +136,18 @@ func MustParseDate(s string) Date {
 		panic(err.Error())
 	}
 	return d
+}
+
+// DateTimeParseLayout parses a formatted string and returns the date value it represents.
+// The layout is based on the standard library time package and for local date-times the reference is
+//  Mon Jan 2 2006 15:04:05
+// If the layout contains a timezone field, it is parsed and discarded.
+func DateTimeParseLayout(layout, value string) (DateTime, error) {
+	if t, err := time.Parse(layout, value); err != nil {
+		return DateTime{}, err
+	} else {
+		return DateTimeFromTime(t), nil
+	}
 }
 
 // ParseDateTime attempts to parse a string into a local date-time. Leading

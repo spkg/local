@@ -130,6 +130,20 @@ func DateFor(year int, month time.Month, day int) Date {
 	}
 }
 
+// DateFromTime returns the Date corresponding to t.
+func DateFromTime(t time.Time) Date {
+	year, month, day := t.Date()
+	return DateFor(year, month, day)
+}
+
+// Format returns a textual representation of the time value formatted
+// according to layout, which takes the same form as the standard library
+// time package. Note that with a Date the reference time is
+//  Mon Jan 2 2006
+func (d Date) Format(layout string) string {
+	return d.t.Format(layout)
+}
+
 // String returns a string representation of d. The date
 // format returned is compatible with ISO 8601: yyyy-mm-dd.
 func (d Date) String() string {
@@ -150,6 +164,21 @@ func toDateString(d Date) string {
 // toQuotedDateString returns the string representation of the date in quotation marks.
 func toQuotedDateString(d Date) string {
 	return fmt.Sprintf(`"%s"`, toDateString(d))
+}
+
+// MarshalBinary implements the encoding.BinaryMarshaler interface.
+func (d Date) MarshalBinary() ([]byte, error) {
+	return d.t.MarshalBinary()
+}
+
+// UnmarshalBinary implements the encoding.BinaryUnmarshaler interface.
+func (d *Date) UnmarshalBinary(data []byte) error {
+	var t time.Time
+	if err := t.UnmarshalBinary(data); err != nil {
+		return err
+	}
+	*d = DateFromTime(t)
+	return nil
 }
 
 // MarshalJSON implements the json.Marshaler interface.

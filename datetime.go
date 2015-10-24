@@ -171,6 +171,13 @@ func DateTimeFor(year int, month time.Month, day int, hour int, minute int, seco
 	}
 }
 
+// DateTimeFromTime returns the DateTime corresponding to t.
+func DateTimeFromTime(t time.Time) DateTime {
+	year, month, day := t.Date()
+	hour, minute, second := t.Clock()
+	return DateTimeFor(year, month, day, hour, minute, second)
+}
+
 // String returns a string representation of d. The date
 // format returned is compatible with ISO 8601: yyyy-mm-dd.
 func (d DateTime) String() string {
