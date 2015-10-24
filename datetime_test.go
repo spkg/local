@@ -343,3 +343,41 @@ func TestDateTimeMarshalXML(t *testing.T) {
 		assert.Equal(tc.st, st)
 	}
 }
+
+func TestDateTimeAfter(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		DateTime1, DateTime2 DateTime
+	}{
+		{DateTimeFor(1999, 9, 30, 1, 2, 3), DateTimeFor(1999, 9, 30, 1, 2, 4)},
+		{DateTimeFor(0, 9, 30, 3, 2, 1), DateTimeFor(0, 9, 30, 3, 2, 2)},
+	}
+
+	for _, tc := range testCases {
+		assert.True(tc.DateTime1.Before(tc.DateTime2))
+		assert.True(tc.DateTime2.After(tc.DateTime1))
+		assert.False(tc.DateTime2.Before(tc.DateTime1))
+		assert.False(tc.DateTime1.After(tc.DateTime2))
+	}
+}
+
+func TestDateTimeWeekday(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		DateTime DateTime
+		Weekday  time.Weekday
+	}{
+		{DateTimeFor(1999, 9, 30, 1, 2, 3), time.Thursday},
+		{DateTimeFor(1997, 1, 30, 4, 5, 6), time.Thursday},
+		{DateTimeFor(1994, 11, 14, 7, 8, 9), time.Monday},
+		{DateTimeFor(1992, 12, 16, 10, 11, 12), time.Wednesday},
+		{DateTimeFor(2033, 1, 4, 13, 14, 15), time.Tuesday},
+		{DateTimeFor(2033, 4, 8, 16, 17, 18), time.Friday},
+		{DateTimeFor(2033, 4, 9, 19, 20, 21), time.Saturday},
+		{DateTimeFor(2042, 7, 6, 22, 23, 24), time.Sunday},
+	}
+
+	for _, tc := range testCases {
+		assert.Equal(tc.Weekday, tc.DateTime.Weekday(), tc.DateTime.String())
+	}
+}
