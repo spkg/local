@@ -2,8 +2,10 @@
 
 [![GoDoc](https://godoc.org/github.com/spkg/local?status.svg)](https://godoc.org/github.com/spkg/local)
 [![Build Status](https://travis-ci.org/spkg/local.svg?branch=master)](https://travis-ci.org/spkg/local)
-[![License](http://img.shields.io/github/license/spkg/local.svg)](https://github.com/spkg/local/blob/master/license.txt)
 [![Coverage](http://gocover.io/_badge/github.com/spkg/local)](http://gocover.io/github.com/spkg/local)
+
+**License**:
+[LICENSE.md](LICENSE.md) (BSD-style: same as Go)
 
 Package local provides types for representing local dates, times and date-times.
 Sometimes it is useful to be able to represent a date or time without reference
