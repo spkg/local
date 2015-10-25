@@ -1,7 +1,6 @@
 package local
 
 import (
-	"encoding/xml"
 	"fmt"
 	"time"
 )
@@ -208,40 +207,4 @@ func (d *Date) UnmarshalText(data []byte) (err error) {
 	s := string(data)
 	*d, err = DateParse(s)
 	return
-}
-
-func (d *Date) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	e.EncodeElement(toDateString(*d), start)
-	return nil
-}
-
-func (d *Date) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
-	var s string
-
-	if err := decoder.DecodeElement(&s, &start); err != nil {
-		return err
-	}
-
-	if ld, err := DateParse(s); err != nil {
-		return err
-	} else {
-		*d = ld
-	}
-	return nil
-}
-
-func (d *Date) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
-	return xml.Attr{
-		Name:  name,
-		Value: d.String(),
-	}, nil
-}
-
-func (d *Date) UnmarshalXMLAttr(attr xml.Attr) error {
-	if ld, err := DateParse(attr.Value); err != nil {
-		return err
-	} else {
-		*d = ld
-	}
-	return nil
 }
