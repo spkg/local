@@ -1,6 +1,8 @@
 package local
 
 import (
+	"database/sql/driver"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -207,4 +209,42 @@ func (d *Date) UnmarshalText(data []byte) (err error) {
 	s := string(data)
 	*d, err = DateParse(s)
 	return
+}
+
+// Scan implements the sql.Scanner interface.
+func (d *Date) Scan(src interface{}) error {
+	switch v := src.(type) {
+	case string:
+		{
+			d1, err := DateParse(v)
+			if err != nil {
+				return err
+			}
+			*d = d1
+		}
+	case []byte:
+		{
+			d1, err := DateParse(string(v))
+			if err != nil {
+				return err
+			}
+			*d = d1
+		}
+	case time.Time:
+		{
+			d1 := DateFromTime(v)
+			*d = d1
+		}
+	case nil:
+		*d = Date{}
+	default:
+		return errors.New("cannot convert to local.Date")
+	}
+	return nil
+}
+
+// Value implements the driver.Valuer interface.
+func (d Date) Value() (driver.Value, error) {
+	year, month, day := d.Date()
+	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC), nil
 }

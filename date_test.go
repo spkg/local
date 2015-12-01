@@ -308,6 +308,62 @@ func TestDateWeekday(t *testing.T) {
 	}
 }
 
+func TestScan(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Value    interface{}
+		Error    bool
+		Expected Date
+	}{
+		{
+			Value:    "2056-11-13",
+			Expected: DateFor(2056, 11, 13),
+		},
+		{
+			Value:    time.Date(2056, 10, 31, 0, 0, 0, 0, time.UTC),
+			Expected: DateFor(2056, 10, 31),
+		},
+		{
+			Value:    time.Date(2056, 9, 30, 1, 2, 3, 400000, time.FixedZone("Australia/Brisbane", 10*3600)),
+			Expected: DateFor(2056, 9, 30),
+		},
+		{Value: []byte("2157-12-31"), Expected: DateFor(2157, 12, 31)},
+		{Value: nil, Expected: Date{}},
+		{Value: int64(11), Error: true},
+		{Value: true, Error: true},
+		{Value: float64(11.1), Error: true},
+	}
+
+	for _, tc := range testCases {
+		var d Date
+		err := d.Scan(tc.Value)
+		if tc.Error {
+			assert.Error(err)
+		} else {
+			assert.NoError(err)
+			assert.True(d.Equal(tc.Expected))
+		}
+	}
+}
+
+func TestValue(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Date     Date
+		Expected time.Time
+	}{
+		{DateFor(2071, 1, 30), time.Date(2071, 1, 30, 0, 0, 0, 0, time.UTC)},
+	}
+
+	for _, tc := range testCases {
+		v, err := tc.Date.Value()
+		assert.NoError(err)
+		assert.IsType(time.Time{}, v)
+		t := v.(time.Time)
+		assert.True(t.Equal(tc.Expected))
+	}
+}
+
 func mustParseDate(s string) Date {
 	d, err := DateParse(s)
 	if err != nil {
