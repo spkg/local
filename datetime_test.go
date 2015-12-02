@@ -382,6 +382,66 @@ func TestDateTimeWeekday(t *testing.T) {
 	}
 }
 
+func TestDateTimeScan(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Value    interface{}
+		Error    bool
+		Expected DateTime
+	}{
+		{
+			Value:    "2056-11-13T12:34:56",
+			Expected: DateTimeFor(2056, 11, 13, 12, 34, 56),
+		},
+		{
+			Value:    "2056-11-13 12:34:56.000",
+			Expected: DateTimeFor(2056, 11, 13, 12, 34, 56),
+		},
+		{
+			Value:    time.Date(2056, 10, 31, 16, 34, 12, 0, time.UTC),
+			Expected: DateTimeFor(2056, 10, 31, 16, 34, 12),
+		},
+		{
+			Value:    time.Date(2056, 9, 30, 1, 2, 3, 400000, time.FixedZone("Australia/Brisbane", 10*3600)),
+			Expected: DateTimeFor(2056, 9, 30, 1, 2, 3),
+		},
+		{Value: []byte("2157-12-31"), Expected: DateTimeFor(2157, 12, 31, 0, 0, 0)},
+		{Value: nil, Expected: DateTime{}},
+		{Value: int64(11), Error: true},
+		{Value: true, Error: true},
+		{Value: float64(11.1), Error: true},
+	}
+
+	for _, tc := range testCases {
+		var d DateTime
+		err := d.Scan(tc.Value)
+		if tc.Error {
+			assert.Error(err)
+		} else {
+			assert.NoError(err)
+			assert.True(d.Equal(tc.Expected))
+		}
+	}
+}
+
+func TestDateTimeValue(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Date     Date
+		Expected time.Time
+	}{
+		{DateFor(2071, 1, 30), time.Date(2071, 1, 30, 0, 0, 0, 0, time.UTC)},
+	}
+
+	for _, tc := range testCases {
+		v, err := tc.Date.Value()
+		assert.NoError(err)
+		assert.IsType(time.Time{}, v)
+		t := v.(time.Time)
+		assert.True(t.Equal(tc.Expected))
+	}
+}
+
 func mustParseDateTime(s string) DateTime {
 	dt, err := DateTimeParse(s)
 	if err != nil {
