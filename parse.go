@@ -61,6 +61,8 @@ func init() {
 		for _, tod := range parseFormats.times {
 			text = "^" + cd + "T" + tod + "$"
 			parseRegexp.calendarDateTimes = append(parseRegexp.calendarDateTimes, regexp.MustCompile(text))
+			text = "^" + cd + `\s+` + tod + "$"
+			parseRegexp.calendarDateTimes = append(parseRegexp.calendarDateTimes, regexp.MustCompile(text))
 		}
 	}
 
