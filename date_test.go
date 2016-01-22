@@ -371,3 +371,54 @@ func mustParseDate(s string) Date {
 	}
 	return d
 }
+
+func TestDateProperties(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Date      Date
+		IsZero    bool
+		Unix      int64
+		Year      int
+		Week      int
+		YearDay   int
+		Formatted string
+	}{
+		{
+			Date:      Date{},
+			IsZero:    true,
+			Unix:      -62135596800,
+			Year:      1,
+			Week:      1,
+			YearDay:   1,
+			Formatted: "1 Jan 0001",
+		},
+		{
+			Date:      DateFor(1970, 1, 1),
+			IsZero:    false,
+			Unix:      0,
+			Year:      1970,
+			Week:      1,
+			YearDay:   1,
+			Formatted: "1 Jan 1970",
+		},
+		{
+			Date:      DateFor(2048, 1, 30),
+			IsZero:    false,
+			Unix:      2463955200,
+			Year:      2048,
+			Week:      5,
+			YearDay:   30,
+			Formatted: "30 Jan 2048",
+		},
+	}
+
+	for _, tc := range testCases {
+		assert.Equal(tc.IsZero, tc.Date.IsZero())
+		assert.Equal(tc.Unix, tc.Date.Unix())
+		year, week := tc.Date.ISOWeek()
+		assert.Equal(tc.Year, year, "Year")
+		assert.Equal(tc.Week, week, "Week")
+		assert.Equal(tc.YearDay, tc.Date.YearDay())
+		assert.Equal(tc.Formatted, tc.Date.Format("2 Jan 2006"))
+	}
+}

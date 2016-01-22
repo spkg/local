@@ -12,19 +12,19 @@ func TestNullDateScan(t *testing.T) {
 	testCases := []struct {
 		Input         interface{}
 		ExpectedError string
-		ExpectedDate  Date
+		ExpectedDate  NullDate
 	}{
 		{
 			Input:        time.Date(2091, 11, 14, 18, 47, 0, 0, time.UTC),
-			ExpectedDate: DateFor(2091, 11, 14),
+			ExpectedDate: NullDate{DateFor(2091, 11, 14), true},
 		},
 		{
 			Input:        "2091-11-14",
-			ExpectedDate: DateFor(2091, 11, 14),
+			ExpectedDate: NullDate{DateFor(2091, 11, 14), true},
 		},
 		{
 			Input:        []byte("2091-11-14"),
-			ExpectedDate: DateFor(2091, 11, 14),
+			ExpectedDate: NullDate{DateFor(2091, 11, 14), true},
 		},
 		{
 			Input:         "xxxx",
@@ -33,6 +33,10 @@ func TestNullDateScan(t *testing.T) {
 		{
 			Input:         24,
 			ExpectedError: "cannot convert to local.Date",
+		},
+		{
+			Input:        nil,
+			ExpectedDate: NullDate{Valid: false},
 		},
 	}
 
@@ -44,9 +48,18 @@ func TestNullDateScan(t *testing.T) {
 			assert.Equal(tc.ExpectedError, err.Error())
 		} else {
 			assert.NoError(err)
-			assert.True(d.Date.Equal(tc.ExpectedDate))
+			if tc.ExpectedDate.Valid {
+				assert.True(d.Valid)
+				assert.True(d.Date.Equal(tc.ExpectedDate.Date))
+			} else {
+				assert.False(d.Valid)
+			}
 		}
 	}
+
+	// check that nil NullDate does not panic but returns error
+	var nilND *NullDate
+	assert.Error(nilND.Scan(nil))
 }
 
 func TestNullDateValue(t *testing.T) {
