@@ -179,6 +179,14 @@ func DateTimeFromTime(t time.Time) DateTime {
 	return DateTimeFor(year, month, day, hour, minute, second)
 }
 
+// Format returns a textual representation of the time value formatted
+// according to layout, which takes the same form as the standard library
+// time package. Note that with a Date the reference time is
+//  Mon Jan 2 2006 15:04:05.
+func (d DateTime) Format(layout string) string {
+	return d.t.Format(layout)
+}
+
 // String returns a string representation of d. The date
 // format returned is compatible with ISO 8601: yyyy-mm-dd.
 func (d DateTime) String() string {
