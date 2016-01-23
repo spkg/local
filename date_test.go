@@ -217,15 +217,17 @@ func TestParseDate(t *testing.T) {
 
 	for _, tc := range testCases {
 		for _, suffix := range []string{"", "T00:00:00Z", "T00:00:00", "T00:00:00+10:000", "T000000+0900"} {
-			text := tc.Text + suffix
-			ld, err := DateParse(text)
-			if tc.Valid {
-				assert.NoError(err, text)
-				assert.Equal(tc.Day, ld.Day())
-				assert.Equal(tc.Month, ld.Month())
-				assert.Equal(tc.Year, ld.Year())
-			} else {
-				assert.Error(err, text)
+			baseText := tc.Text + suffix
+			for _, text := range []string{baseText, " \t" + baseText + "\t\t "} {
+				ld, err := DateParse(text)
+				if tc.Valid {
+					assert.NoError(err, text)
+					assert.Equal(tc.Day, ld.Day())
+					assert.Equal(tc.Month, ld.Month())
+					assert.Equal(tc.Year, ld.Year())
+				} else {
+					assert.Error(err, text)
+				}
 			}
 		}
 	}

@@ -48,35 +48,40 @@ var parseRegexp = struct {
 	ordinalDateTimes  []*regexp.Regexp
 }{}
 
+const (
+	startRE = `^\s*`
+	endRE   = `\s*$`
+)
+
 func init() {
 	for _, cd := range parseFormats.calendarDates {
 		for _, tat := range parseFormats.throwAwayTimes {
-			text := "^" + cd + tat + "$"
+			text := startRE + cd + tat + endRE
 			parseRegexp.calendarDates = append(parseRegexp.calendarDates, regexp.MustCompile(text))
 		}
 
-		text := "^" + cd + "$"
+		text := startRE + cd + endRE
 		parseRegexp.calendarDateTimes = append(parseRegexp.calendarDateTimes, regexp.MustCompile(text))
 
 		for _, tod := range parseFormats.times {
-			text = "^" + cd + "T" + tod + "$"
+			text = startRE + cd + "T" + tod + endRE
 			parseRegexp.calendarDateTimes = append(parseRegexp.calendarDateTimes, regexp.MustCompile(text))
-			text = "^" + cd + `\s+` + tod + "$"
+			text = startRE + cd + `\s+` + tod + endRE
 			parseRegexp.calendarDateTimes = append(parseRegexp.calendarDateTimes, regexp.MustCompile(text))
 		}
 	}
 
 	for _, od := range parseFormats.ordinalDates {
 		for _, tat := range parseFormats.throwAwayTimes {
-			text := "^" + od + tat + "$"
+			text := startRE + od + tat + endRE
 			parseRegexp.ordinalDates = append(parseRegexp.ordinalDates, regexp.MustCompile(text))
 		}
 
-		text := "^" + od + "$"
+		text := startRE + od + endRE
 		parseRegexp.ordinalDateTimes = append(parseRegexp.ordinalDateTimes, regexp.MustCompile(text))
 
 		for _, tod := range parseFormats.times {
-			text = "^" + od + "T" + tod + "$"
+			text = startRE + od + "T" + tod + endRE
 			parseRegexp.ordinalDateTimes = append(parseRegexp.ordinalDateTimes, regexp.MustCompile(text))
 		}
 	}

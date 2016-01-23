@@ -285,8 +285,7 @@ func TestParseDateDateTime(t *testing.T) {
 	assert := assert.New(t)
 
 	for _, tc := range testCases {
-		for _, suffix := range []string{""} { //, "T00:00:00Z", "T00:00:00", "T00:00:00+10:000", "T000000+0900"} {
-			text := tc.Text + suffix
+		for _, text := range []string{tc.Text, " \t\t" + tc.Text + "\t\t\t "} {
 			ld, err := DateTimeParse(text)
 			if tc.Valid {
 				assert.NoError(err, text)
