@@ -448,3 +448,54 @@ func mustParseDateTime(s string) DateTime {
 	}
 	return dt
 }
+
+func TestDateTimeProperties(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		DateTime  DateTime
+		IsZero    bool
+		Unix      int64
+		Year      int
+		Week      int
+		YearDay   int
+		Formatted string
+	}{
+		{
+			DateTime:  DateTime{},
+			IsZero:    true,
+			Unix:      -62135596800,
+			Year:      1,
+			Week:      1,
+			YearDay:   1,
+			Formatted: "1 Jan 0001 00:00:00",
+		},
+		{
+			DateTime:  DateTimeFor(1970, 1, 1, 0, 0, 0),
+			IsZero:    false,
+			Unix:      0,
+			Year:      1970,
+			Week:      1,
+			YearDay:   1,
+			Formatted: "1 Jan 1970 00:00:00",
+		},
+		{
+			DateTime:  DateTimeFor(2048, 1, 30, 12, 34, 56),
+			IsZero:    false,
+			Unix:      2464000496,
+			Year:      2048,
+			Week:      5,
+			YearDay:   30,
+			Formatted: "30 Jan 2048 12:34:56",
+		},
+	}
+
+	for _, tc := range testCases {
+		assert.Equal(tc.IsZero, tc.DateTime.IsZero())
+		assert.Equal(tc.Unix, tc.DateTime.Unix())
+		year, week := tc.DateTime.ISOWeek()
+		assert.Equal(tc.Year, year, "Year")
+		assert.Equal(tc.Week, week, "Week")
+		assert.Equal(tc.YearDay, tc.DateTime.YearDay())
+		assert.Equal(tc.Formatted, tc.DateTime.Format("2 Jan 2006 15:04:05"))
+	}
+}
