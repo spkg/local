@@ -36,7 +36,7 @@ func (n *NullDate) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (n *NullDate) Value() (driver.Value, error) {
+func (n NullDate) Value() (driver.Value, error) {
 	if !n.Valid {
 		return nil, nil
 	}
