@@ -330,6 +330,7 @@ func TestScan(t *testing.T) {
 			Expected: DateFor(2056, 9, 30),
 		},
 		{Value: []byte("2157-12-31"), Expected: DateFor(2157, 12, 31)},
+		{Value: []byte("xxx"), Error: true},
 		{Value: nil, Expected: Date{}},
 		{Value: int64(11), Error: true},
 		{Value: true, Error: true},
@@ -422,5 +423,94 @@ func TestDateProperties(t *testing.T) {
 		assert.Equal(tc.Week, week, "Week")
 		assert.Equal(tc.YearDay, tc.Date.YearDay())
 		assert.Equal(tc.Formatted, tc.Date.Format("2 Jan 2006"))
+	}
+}
+
+// Test for case where attempt made to unmarshal invalid binary data
+func TestUnmarshalBinaryError(t *testing.T) {
+	assert := assert.New(t)
+	data := []byte("xxxx")
+	var d Date
+	err := d.UnmarshalBinary(data)
+	assert.Error(err)
+}
+
+func TestDateAddDate(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Date     Date
+		Years    int
+		Months   int
+		Days     int
+		Expected Date
+	}{
+		{
+			Date:     DateFor(2029, 12, 16),
+			Years:    1,
+			Expected: DateFor(2030, 12, 16),
+		},
+		{
+			Date:     DateFor(2029, 12, 16),
+			Years:    1,
+			Months:   3,
+			Expected: DateFor(2031, 3, 16),
+		},
+		{
+			Date:     DateFor(2029, 12, 16),
+			Years:    1,
+			Months:   3,
+			Days:     30,
+			Expected: DateFor(2031, 4, 15),
+		},
+		{
+			Date:     DateFor(2029, 12, 16),
+			Years:    -1,
+			Months:   3,
+			Days:     30,
+			Expected: DateFor(2029, 4, 15),
+		},
+		{
+			Date:     DateFor(2029, 12, 16),
+			Months:   -13,
+			Expected: DateFor(2028, 11, 16),
+		},
+		{
+			Date:     DateFor(2029, 12, 16),
+			Days:     15,
+			Expected: DateFor(2029, 12, 31),
+		},
+	}
+	for _, tc := range testCases {
+		d := tc.Date.AddDate(tc.Years, tc.Months, tc.Days)
+		assert.Equal(tc.Expected, d, tc.Expected.String()+" vs "+d.String())
+	}
+}
+
+func TestDateSub(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Date1 Date
+		Date2 Date
+		Days  int
+	}{
+		{
+			Date1: DateFor(1994, 11, 14),
+			Date2: DateFor(1994, 11, 13),
+			Days:  1,
+		},
+		{
+			Date1: DateFor(1994, 11, 14),
+			Date2: DateFor(1994, 11, 15),
+			Days:  -1,
+		},
+		{
+			Date1: DateFor(1994, 11, 14),
+			Date2: DateFor(1992, 12, 16),
+			Days:  698,
+		},
+	}
+	for _, tc := range testCases {
+		d := tc.Date1.Sub(tc.Date2)
+		assert.Equal(time.Duration(tc.Days)*time.Hour*24, d)
 	}
 }
