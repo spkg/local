@@ -514,3 +514,38 @@ func TestDateSub(t *testing.T) {
 		assert.Equal(time.Duration(tc.Days)*time.Hour*24, d)
 	}
 }
+
+func TestDateParseLayout(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Text     string
+		Layout   string
+		Expected Date
+		Error    bool
+	}{
+		{
+			Text:     "11 Jan 1994",
+			Layout:   "02 Jan 2006",
+			Expected: DateFor(1994, 1, 11),
+		},
+		{
+			Text:   "Jan 11 1994",
+			Layout: "02 Jan 2006",
+			Error:  true,
+		},
+	}
+
+	for _, tc := range testCases {
+		d, err := DateParseLayout(tc.Layout, tc.Text)
+		if tc.Error {
+			assert.Error(err)
+		} else {
+			assert.NoError(err)
+			assert.Equal(tc.Expected, d, datesNotEqual(tc.Expected, d))
+		}
+	}
+}
+
+func datesNotEqual(expected, actual Date) string {
+	return fmt.Sprintf("%s vs %s", expected.String(), actual.String())
+}

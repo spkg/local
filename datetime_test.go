@@ -152,6 +152,19 @@ func CheckLocalDateTime(t *testing.T, datetime DateTime, year, month, day, hour,
 			}
 		}
 	}
+
+	// marshal and unmarshal binary
+	data, err = datetime.MarshalBinary()
+	if err != nil {
+		t.Errorf("MarshalBinary: %s: unexpected error: %v", text, err)
+	} else {
+		// binary should be the same as the equivalent time binary
+		tdata, _ := datetime.t.MarshalBinary()
+		assert.Equal(tdata, data)
+		var datetime2 DateTime
+		err = datetime2.UnmarshalBinary(data)
+		assert.NoError(err, datetime.String())
+	}
 }
 
 func TestParseDateDateTime(t *testing.T) {
@@ -406,6 +419,7 @@ func TestDateTimeScan(t *testing.T) {
 			Expected: DateTimeFor(2056, 9, 30, 1, 2, 3),
 		},
 		{Value: []byte("2157-12-31"), Expected: DateTimeFor(2157, 12, 31, 0, 0, 0)},
+		{Value: []byte("zzz"), Error: true},
 		{Value: nil, Expected: DateTime{}},
 		{Value: int64(11), Error: true},
 		{Value: true, Error: true},
@@ -601,4 +615,39 @@ func TestDateTimeSub(t *testing.T) {
 		expected := time.Duration(tc.Days)*time.Hour*24 + time.Duration(tc.Hours)*time.Hour + time.Duration(tc.Minutes)*time.Minute + time.Duration(tc.Seconds)*time.Second
 		assert.Equal(expected, d, fmt.Sprintf("%s - %s expected %d:%d:%d:%d", tc.DateTime1.String(), tc.DateTime2.String(), tc.Days, tc.Hours, tc.Minutes, tc.Seconds))
 	}
+}
+
+func TestDateTimeParseLayout(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Text     string
+		Layout   string
+		Expected DateTime
+		Error    bool
+	}{
+		{
+			Text:     "11 Jan 1994 05:45:23",
+			Layout:   "02 Jan 2006 15:04:05",
+			Expected: DateTimeFor(1994, 1, 11, 5, 45, 23),
+		},
+		{
+			Text:   "Jan 11 1994",
+			Layout: "02 Jan 2006",
+			Error:  true,
+		},
+	}
+
+	for _, tc := range testCases {
+		d, err := DateTimeParseLayout(tc.Layout, tc.Text)
+		if tc.Error {
+			assert.Error(err)
+		} else {
+			assert.NoError(err)
+			assert.Equal(tc.Expected, d, dateTimesNotEqual(tc.Expected, d))
+		}
+	}
+}
+
+func dateTimesNotEqual(expected, actual DateTime) string {
+	return fmt.Sprintf("%s vs %s", expected.String(), actual.String())
 }
