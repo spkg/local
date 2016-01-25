@@ -209,6 +209,21 @@ func localDateQuotedString(d DateTime) string {
 	return fmt.Sprintf(`"%s"`, localDateTimeString(d))
 }
 
+// MarshalBinary implements the encoding.BinaryMarshaler interface.
+func (d DateTime) MarshalBinary() ([]byte, error) {
+	return d.t.MarshalBinary()
+}
+
+// UnmarshalBinary implements the encoding.BinaryUnmarshaler interface.
+func (d *DateTime) UnmarshalBinary(data []byte) error {
+	var t time.Time
+	if err := t.UnmarshalBinary(data); err != nil {
+		return err
+	}
+	*d = DateTimeFromTime(t)
+	return nil
+}
+
 // MarshalJSON implements the json.Marshaler interface.
 // The date is a quoted string in an ISO 8601 format (yyyy-mm-dd).
 func (d DateTime) MarshalJSON() ([]byte, error) {

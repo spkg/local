@@ -2,6 +2,7 @@ package local
 
 import (
 	"encoding/xml"
+	"fmt"
 	"testing"
 	"time"
 
@@ -497,5 +498,107 @@ func TestDateTimeProperties(t *testing.T) {
 		assert.Equal(tc.Week, week, "Week")
 		assert.Equal(tc.YearDay, tc.DateTime.YearDay())
 		assert.Equal(tc.Formatted, tc.DateTime.Format("2 Jan 2006 15:04:05"))
+	}
+}
+
+// Test for case where attempt made to unmarshal invalid binary data
+func TestDateTimeUnmarshalBinaryError(t *testing.T) {
+	assert := assert.New(t)
+	data := []byte("xxxx")
+	var d DateTime
+	err := d.UnmarshalBinary(data)
+	assert.Error(err)
+}
+
+func TestDateTimeAddDate(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		DateTime DateTime
+		Years    int
+		Months   int
+		Days     int
+		Expected DateTime
+	}{
+		{
+			DateTime: DateTimeFor(2029, 12, 16, 11, 47, 42),
+			Years:    1,
+			Expected: DateTimeFor(2030, 12, 16, 11, 47, 42),
+		},
+		{
+			DateTime: DateTimeFor(2029, 12, 16, 12, 34, 56),
+			Years:    1,
+			Months:   3,
+			Expected: DateTimeFor(2031, 3, 16, 12, 34, 56),
+		},
+		{
+			DateTime: DateTimeFor(2029, 12, 16, 1, 2, 3),
+			Years:    1,
+			Months:   3,
+			Days:     30,
+			Expected: DateTimeFor(2031, 4, 15, 1, 2, 3),
+		},
+		{
+			DateTime: DateTimeFor(2029, 12, 16, 3, 2, 1),
+			Years:    -1,
+			Months:   3,
+			Days:     30,
+			Expected: DateTimeFor(2029, 4, 15, 3, 2, 1),
+		},
+		{
+			DateTime: DateTimeFor(2029, 12, 16, 4, 5, 6),
+			Months:   -13,
+			Expected: DateTimeFor(2028, 11, 16, 4, 5, 6),
+		},
+		{
+			DateTime: DateTimeFor(2029, 12, 16, 11, 21, 13),
+			Days:     15,
+			Expected: DateTimeFor(2029, 12, 31, 11, 21, 13),
+		},
+	}
+	for _, tc := range testCases {
+		d := tc.DateTime.AddDate(tc.Years, tc.Months, tc.Days)
+		assert.Equal(tc.Expected, d, tc.Expected.String()+" vs "+d.String())
+	}
+}
+
+func TestDateTimeSub(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		DateTime1 DateTime
+		DateTime2 DateTime
+		Days      int
+		Hours     int
+		Minutes   int
+		Seconds   int
+	}{
+		{
+			DateTime1: DateTimeFor(1994, 11, 14, 2, 3, 4),
+			DateTime2: DateTimeFor(1994, 11, 13, 0, 0, 0),
+			Days:      1,
+			Hours:     2,
+			Minutes:   3,
+			Seconds:   4,
+		},
+		{
+			DateTime1: DateTimeFor(1994, 11, 14, 0, 0, 0),
+			DateTime2: DateTimeFor(1994, 11, 15, 2, 3, 4),
+			Days:      -1,
+			Hours:     -2,
+			Minutes:   -3,
+			Seconds:   -4,
+		},
+		{
+			DateTime1: DateTimeFor(1994, 11, 14, 18, 58, 0),
+			DateTime2: DateTimeFor(1992, 12, 16, 11, 47, 0),
+			Days:      698,
+			Hours:     7,
+			Minutes:   11,
+			Seconds:   0,
+		},
+	}
+	for _, tc := range testCases {
+		d := tc.DateTime1.Sub(tc.DateTime2)
+		expected := time.Duration(tc.Days)*time.Hour*24 + time.Duration(tc.Hours)*time.Hour + time.Duration(tc.Minutes)*time.Minute + time.Duration(tc.Seconds)*time.Second
+		assert.Equal(expected, d, fmt.Sprintf("%s - %s expected %d:%d:%d:%d", tc.DateTime1.String(), tc.DateTime2.String(), tc.Days, tc.Hours, tc.Minutes, tc.Seconds))
 	}
 }

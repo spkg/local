@@ -427,7 +427,7 @@ func TestDateProperties(t *testing.T) {
 }
 
 // Test for case where attempt made to unmarshal invalid binary data
-func TestUnmarshalBinaryError(t *testing.T) {
+func TestDateUnmarshalBinaryError(t *testing.T) {
 	assert := assert.New(t)
 	data := []byte("xxxx")
 	var d Date
