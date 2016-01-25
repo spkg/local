@@ -42,3 +42,39 @@ func (n NullDate) Value() (driver.Value, error) {
 	}
 	return n.Date.Value()
 }
+
+// NullDateTime represents a DateTime that may be null.
+// NullDateTime implements the sql Scanner interface so
+// it can be used as a scan destination, similar to
+// sql.NullString.
+type NullDateTime struct {
+	DateTime DateTime
+	Valid    bool // Valid is true if Date is not NULL
+}
+
+// Scan implements the sql Scanner interface
+func (n *NullDateTime) Scan(value interface{}) error {
+	if n == nil {
+		return errNilPtr
+	}
+
+	if value == nil {
+		n.DateTime, n.Valid = DateTime{}, false
+		return nil
+	}
+
+	err := n.DateTime.Scan(value)
+	if err == nil {
+		n.Valid = true
+	}
+
+	return err
+}
+
+// Value implements the driver Valuer interface.
+func (n NullDateTime) Value() (driver.Value, error) {
+	if !n.Valid {
+		return nil, nil
+	}
+	return n.DateTime.Value()
+}
