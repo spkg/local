@@ -92,16 +92,16 @@ func init() {
 //  Mon Jan 2 2006
 // If the layout contains time or timezone fields, they are parsed and discarded.
 func DateParseLayout(layout, value string) (Date, error) {
-	if t, err := time.Parse(layout, value); err != nil {
+	t, err := time.Parse(layout, value)
+	if err != nil {
 		return Date{}, err
-	} else {
-		return DateFromTime(t), nil
 	}
+	return DateFromTime(t), nil
 }
 
 // DateParse attempts to parse a string into a local date. Leading
 // and trailing space and quotation marks are ignored. The following
-// date formates are recognised: yyyy-mm-dd, yyyymmdd, yyyy.mm.dd,
+// date formates are recognized: yyyy-mm-dd, yyyymmdd, yyyy.mm.dd,
 // yyyy/mm/dd, yyyy-ddd, yyyyddd.
 //
 // DateParse is used to parse dates where no layout is provided, for example
@@ -140,17 +140,17 @@ func DateParse(s string) (Date, error) {
 //  Mon Jan 2 2006 15:04:05
 // If the layout contains a timezone field, it is parsed and discarded.
 func DateTimeParseLayout(layout, value string) (DateTime, error) {
-	if t, err := time.Parse(layout, value); err != nil {
+	t, err := time.Parse(layout, value)
+	if err != nil {
 		return DateTime{}, err
-	} else {
-		return DateTimeFromTime(t), nil
 	}
+	return DateTimeFromTime(t), nil
 }
 
 // DateTimeParse attempts to parse a string into a local date-time. Leading
 // and trailing space and quotation marks are ignored. The following
-// date formates are recognised: yyyy-mm-dd, yyyymmdd, yyyy.mm.dd,
-// yyyy/mm/dd, yyyy-ddd, yyyyddd. The following time formats are recognised:
+// date formates are recognized: yyyy-mm-dd, yyyymmdd, yyyy.mm.dd,
+// yyyy/mm/dd, yyyy-ddd, yyyyddd. The following time formats are recognized:
 // HH:MM:SS, HH:MM, HHMMSS, HHMM.
 func DateTimeParse(s string) (DateTime, error) {
 	s = strings.Trim(s, " \t\"'")

@@ -28,13 +28,13 @@ type DateTime struct {
 }
 
 // After reports whether the local date-time d is after e
-func (d DateTime) After(e DateTime) bool {
-	return d.t.After(e.t)
+func (dt DateTime) After(e DateTime) bool {
+	return dt.t.After(e.t)
 }
 
 // Before reports whether the local date-time d is before e
-func (d DateTime) Before(e DateTime) bool {
-	return d.t.Before(e.t)
+func (dt DateTime) Before(e DateTime) bool {
+	return dt.t.Before(e.t)
 }
 
 // Equal reports whether dt and e represent the same local date-time.
@@ -105,23 +105,23 @@ func (dt DateTime) Second() int {
 }
 
 // Weekday returns the day of the week specified by d.
-func (d DateTime) Weekday() time.Weekday {
-	return d.t.Weekday()
+func (dt DateTime) Weekday() time.Weekday {
+	return dt.t.Weekday()
 }
 
 // ISOWeek returns the ISO 8601 year and week number in which d occurs.
 // Week ranges from 1 to 53. Jan 01 to Jan 03 of year n might belong to
 // week 52 or 53 of year n-1, and Dec 29 to Dec 31 might belong to week 1
 // of year n+1.
-func (d DateTime) ISOWeek() (year, week int) {
-	year, week = d.t.ISOWeek()
+func (dt DateTime) ISOWeek() (year, week int) {
+	year, week = dt.t.ISOWeek()
 	return
 }
 
 // YearDay returns the day of the year specified by D, in the range [1,365] for non-leap years,
 // and [1,366] in leap years.
-func (d DateTime) YearDay() int {
-	return d.t.YearDay()
+func (dt DateTime) YearDay() int {
+	return dt.t.YearDay()
 }
 
 // Add returns the local date-time d + duration.
@@ -183,19 +183,19 @@ func DateTimeFromTime(t time.Time) DateTime {
 // according to layout, which takes the same form as the standard library
 // time package. Note that with a Date the reference time is
 //  Mon Jan 2 2006 15:04:05.
-func (d DateTime) Format(layout string) string {
-	return d.t.Format(layout)
+func (dt DateTime) Format(layout string) string {
+	return dt.t.Format(layout)
 }
 
 // String returns a string representation of d. The date
 // format returned is compatible with ISO 8601: yyyy-mm-dd.
-func (d DateTime) String() string {
-	return localDateTimeString(d)
+func (dt DateTime) String() string {
+	return localDateTimeString(dt)
 }
 
 // localDateTimeString returns the string representation of the date.
-func localDateTimeString(d DateTime) string {
-	year, month, day, hour, minute, second := d.DateTime()
+func localDateTimeString(dt DateTime) string {
+	year, month, day, hour, minute, second := dt.DateTime()
 	sign := ""
 	if year < 0 {
 		year = -year
@@ -205,56 +205,56 @@ func localDateTimeString(d DateTime) string {
 }
 
 // localDateQuotedString returns the string representation of the date in quotation marks.
-func localDateQuotedString(d DateTime) string {
-	return fmt.Sprintf(`"%s"`, localDateTimeString(d))
+func localDateQuotedString(dt DateTime) string {
+	return fmt.Sprintf(`"%s"`, localDateTimeString(dt))
 }
 
 // MarshalBinary implements the encoding.BinaryMarshaler interface.
-func (d DateTime) MarshalBinary() ([]byte, error) {
-	return d.t.MarshalBinary()
+func (dt DateTime) MarshalBinary() ([]byte, error) {
+	return dt.t.MarshalBinary()
 }
 
 // UnmarshalBinary implements the encoding.BinaryUnmarshaler interface.
-func (d *DateTime) UnmarshalBinary(data []byte) error {
+func (dt *DateTime) UnmarshalBinary(data []byte) error {
 	var t time.Time
 	if err := t.UnmarshalBinary(data); err != nil {
 		return err
 	}
-	*d = DateTimeFromTime(t)
+	*dt = DateTimeFromTime(t)
 	return nil
 }
 
 // MarshalJSON implements the json.Marshaler interface.
 // The date is a quoted string in an ISO 8601 format (yyyy-mm-dd).
-func (d DateTime) MarshalJSON() ([]byte, error) {
-	return []byte(localDateQuotedString(d)), nil
+func (dt DateTime) MarshalJSON() ([]byte, error) {
+	return []byte(localDateQuotedString(dt)), nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 // The date is expected to be a quoted string in an ISO 8601
 // format (calendar or ordinal).
-func (d *DateTime) UnmarshalJSON(data []byte) (err error) {
+func (dt *DateTime) UnmarshalJSON(data []byte) (err error) {
 	s := string(data)
-	*d, err = DateTimeParse(s)
+	*dt, err = DateTimeParse(s)
 	return
 }
 
 // MarshalText implements the encoding.TextMarshaller interface.
 // The date format is yyyy-mm-dd.
-func (d DateTime) MarshalText() ([]byte, error) {
-	return []byte(localDateTimeString(d)), nil
+func (dt DateTime) MarshalText() ([]byte, error) {
+	return []byte(localDateTimeString(dt)), nil
 }
 
 // UnmarshalText implements the encoding.TextUnmarshaller interface.
 // The date is expected to an ISO 8601 format (calendar or ordinal).
-func (d *DateTime) UnmarshalText(data []byte) (err error) {
+func (dt *DateTime) UnmarshalText(data []byte) (err error) {
 	s := string(data)
-	*d, err = DateTimeParse(s)
+	*dt, err = DateTimeParse(s)
 	return
 }
 
 // Scan implements the sql.Scanner interface.
-func (d *DateTime) Scan(src interface{}) error {
+func (dt *DateTime) Scan(src interface{}) error {
 	switch v := src.(type) {
 	case string:
 		{
@@ -262,7 +262,7 @@ func (d *DateTime) Scan(src interface{}) error {
 			if err != nil {
 				return err
 			}
-			*d = d1
+			*dt = d1
 		}
 	case []byte:
 		{
@@ -270,15 +270,15 @@ func (d *DateTime) Scan(src interface{}) error {
 			if err != nil {
 				return err
 			}
-			*d = d1
+			*dt = d1
 		}
 	case time.Time:
 		{
 			d1 := DateTimeFromTime(v)
-			*d = d1
+			*dt = d1
 		}
 	case nil:
-		*d = DateTime{}
+		*dt = DateTime{}
 	default:
 		return errors.New("cannot convert to local.DateTime")
 	}
@@ -286,8 +286,8 @@ func (d *DateTime) Scan(src interface{}) error {
 }
 
 // Value implements the driver.Valuer interface.
-func (d DateTime) Value() (driver.Value, error) {
-	year, month, day := d.Date()
-	hour, minute, second := d.Clock()
+func (dt DateTime) Value() (driver.Value, error) {
+	year, month, day := dt.Date()
+	hour, minute, second := dt.Clock()
 	return time.Date(year, month, day, hour, minute, second, 0, time.UTC), nil
 }
