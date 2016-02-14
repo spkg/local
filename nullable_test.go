@@ -1,6 +1,8 @@
 package local
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -96,6 +98,45 @@ func TestNullDateValue(t *testing.T) {
 	}
 }
 
+func TestNullDateJSON(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Text          string
+		NullDate      NullDate
+		ExpectedError string
+	}{
+		{
+			Text:     "null",
+			NullDate: NullDate{},
+		},
+		{
+			Text:     `"2091-09-30"`,
+			NullDate: NullDate{Date: mustParseDate("2091-09-30"), Valid: true},
+		},
+		{
+			Text:          `25`,
+			ExpectedError: "invalid date format",
+		},
+	}
+
+	for _, tc := range testCases {
+		var nd NullDate
+		err := json.Unmarshal([]byte(tc.Text), &nd)
+		if tc.ExpectedError != "" {
+			assert.Error(err)
+			assert.True(strings.Contains(err.Error(), tc.ExpectedError), err.Error())
+		} else {
+			assert.NoError(err)
+			assert.Equal(tc.NullDate.Valid, nd.Valid, tc.NullDate.Date.String())
+			assert.True(tc.NullDate.Date.Equal(nd.Date), tc.NullDate.Date.String(), nd.Date.String())
+
+			p, err := json.Marshal(tc.NullDate)
+			assert.NoError(err)
+			assert.Equal(tc.Text, string(p))
+		}
+	}
+}
+
 func TestNullDateTimeScan(t *testing.T) {
 	assert := assert.New(t)
 	testCases := []struct {
@@ -181,6 +222,45 @@ func TestNullDateTimeValue(t *testing.T) {
 			t, ok := v.(time.Time)
 			assert.True(ok)
 			assert.True(tc.ExpectedTime.Equal(t))
+		}
+	}
+}
+
+func TestNullDateTimeJSON(t *testing.T) {
+	assert := assert.New(t)
+	testCases := []struct {
+		Text          string
+		NullDateTime  NullDateTime
+		ExpectedError string
+	}{
+		{
+			Text:         "null",
+			NullDateTime: NullDateTime{},
+		},
+		{
+			Text:         `"2091-01-30T22:02:00"`,
+			NullDateTime: NullDateTime{DateTime: mustParseDateTime("2091-01-30T22:02"), Valid: true},
+		},
+		{
+			Text:          `25`,
+			ExpectedError: "invalid date-time format",
+		},
+	}
+
+	for _, tc := range testCases {
+		var nd NullDateTime
+		err := json.Unmarshal([]byte(tc.Text), &nd)
+		if tc.ExpectedError != "" {
+			assert.Error(err)
+			assert.True(strings.Contains(err.Error(), tc.ExpectedError), err.Error())
+		} else {
+			assert.NoError(err)
+			assert.Equal(tc.NullDateTime.Valid, nd.Valid, tc.NullDateTime.DateTime.String())
+			assert.True(tc.NullDateTime.DateTime.Equal(nd.DateTime), tc.NullDateTime.DateTime.String())
+
+			p, err := json.Marshal(tc.NullDateTime)
+			assert.NoError(err)
+			assert.Equal(tc.Text, string(p))
 		}
 	}
 }
