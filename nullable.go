@@ -17,6 +17,29 @@ type NullDate struct {
 	Valid bool // Valid is true if Date is not NULL
 }
 
+// Assign assigns the pointer value. If the pointer is nil,
+// then  Valid is set to false.
+func (n *NullDate) Assign(ptr *Date) NullDate {
+	if ptr == nil {
+		n.Valid = false
+		n.Date = Date{}
+	} else {
+		n.Valid = true
+		n.Date = *ptr
+	}
+	return *n
+}
+
+// Ptr returns a pointer to Date. The pointer will
+// be nil if Valid is false.
+func (n NullDate) Ptr() *Date {
+	if n.Valid {
+		v := n.Date
+		return &v
+	}
+	return nil
+}
+
 // Scan implements the sql Scanner interface
 func (n *NullDate) Scan(value interface{}) error {
 	if n == nil {
