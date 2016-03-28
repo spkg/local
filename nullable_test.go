@@ -55,13 +55,13 @@ func TestNullDateScan(t *testing.T) {
 				assert.True(d.Date.Equal(tc.ExpectedDate.Date))
 				assert.NotNil(d.Ptr())
 				assert.True(d.Ptr().Equal(d.Date))
-				d2 := (&NullDate{}).Assign(d.Ptr())
+				d2 := NullDateFrom(d.Ptr())
 				assert.True(d2.Valid)
 				assert.True(d2.Date.Equal(d.Date))
 			} else {
 				assert.False(d.Valid)
 				assert.Nil(d.Ptr())
-				d2 := (&NullDate{}).Assign(d.Ptr())
+				d2 := NullDateFrom(d.Ptr())
 				assert.False(d2.Valid)
 			}
 		}
@@ -189,8 +189,16 @@ func TestNullDateTimeScan(t *testing.T) {
 			if tc.ExpectedDateTime.Valid {
 				assert.True(d.Valid)
 				assert.Equal(tc.ExpectedDateTime.DateTime, d.DateTime, tc.ExpectedDateTime.DateTime.String()+" vs "+d.DateTime.String())
+				assert.NotNil(d.Ptr())
+				assert.True(d.Ptr().Equal(d.DateTime))
+				d2 := NullDateTimeFrom(d.Ptr())
+				assert.True(d2.Valid)
+				assert.True(d2.DateTime.Equal(d.DateTime))
 			} else {
 				assert.False(d.Valid)
+				assert.Nil(d.Ptr())
+				d2 := NullDateTimeFrom(d.Ptr())
+				assert.False(d2.Valid)
 			}
 		}
 	}

@@ -17,17 +17,16 @@ type NullDate struct {
 	Valid bool // Valid is true if Date is not NULL
 }
 
-// Assign assigns the pointer value. If the pointer is nil,
-// then  Valid is set to false.
-func (n *NullDate) Assign(ptr *Date) NullDate {
+// NullDateFrom returns a NullDate whose value is
+// obtained from the pointer.
+func NullDateFrom(ptr *Date) NullDate {
 	if ptr == nil {
-		n.Valid = false
-		n.Date = Date{}
-	} else {
-		n.Valid = true
-		n.Date = *ptr
+		return NullDate{}
 	}
-	return *n
+	return NullDate{
+		Date:  *ptr,
+		Valid: true,
+	}
 }
 
 // Ptr returns a pointer to Date. The pointer will
@@ -102,6 +101,28 @@ func (n *NullDate) UnmarshalJSON(p []byte) error {
 type NullDateTime struct {
 	DateTime DateTime
 	Valid    bool // Valid is true if Date is not NULL
+}
+
+// NullDateTimeFrom returns a NullDateTime whose value is
+// obtained from the pointer.
+func NullDateTimeFrom(ptr *DateTime) NullDateTime {
+	if ptr == nil {
+		return NullDateTime{}
+	}
+	return NullDateTime{
+		DateTime: *ptr,
+		Valid:    true,
+	}
+}
+
+// Ptr returns a pointer to DateTime. The pointer will
+// be nil if Valid is false.
+func (n NullDateTime) Ptr() *DateTime {
+	if n.Valid {
+		v := n.DateTime
+		return &v
+	}
+	return nil
 }
 
 // Scan implements the sql Scanner interface
