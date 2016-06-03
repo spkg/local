@@ -19,9 +19,10 @@ There are also circumstances where an event will be scheduled for a date and tim
 in the local timezone, whatever that may be. And example of this might be a schedule for
 taking medication.
 
-Like the standard library time package, the local package uses a Gregorian calendar
+Like the standard library time package, the local package uses the
+[proleptic Gregorian calendar](https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar)
 for all calculations. The local package makes use of the time package for all
-of its date-time calculations. Because this code is based on the standard time package,
+of its date-time calculations. Because some of this code is based on the standard time package,
 it has the identical license to the Go project.
 
 For usage examples, refer to the [GoDoc](https://godoc.org/github.com/spkg/local) documentation.
