@@ -4,7 +4,7 @@
 [![Build Status (Linux)](https://travis-ci.org/spkg/local.svg?branch=master)](https://travis-ci.org/spkg/local)
 [![Build status (Windows)](https://ci.appveyor.com/api/projects/status/1l3spdhwwftuk6nt?svg=true)](https://ci.appveyor.com/project/jjeffery/local)
 [![Coverage Status](https://coveralls.io/repos/github/spkg/local/badge.svg?branch=master)](https://coveralls.io/github/spkg/local?branch=master)
-[![GoReportCard](http://goreportcard.com/badge/spkg/local)](http://goreportcard.com/report/spkg/local)
+[![GoReportCard](https://goreportcard.com/badge/github.com/spkg/local)](https://goreportcard.com/report/github.com/spkg/local)
 [![License](https://img.shields.io/badge/license-BSD-green.svg)](https://raw.githubusercontent.com/spkg/local/master/LICENSE.md)
 
 Package local provides types for representing local dates, and times.
